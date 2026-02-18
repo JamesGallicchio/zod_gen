@@ -448,6 +448,8 @@ export type Status = z.infer<typeof StatusSchema>;
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-02-18
+
 ### ✨ Added
 - **Serde enum representations**: support externally tagged, internally tagged, adjacently tagged, and untagged enums in the derive macro
 - **Zod helpers**: added `z.intersection(...)` to model internally tagged newtype flattening
