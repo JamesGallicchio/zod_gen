@@ -267,6 +267,12 @@ impl ZodSchema for u64 {
     }
 }
 
+impl ZodSchema for usize {
+    fn zod_schema() -> String {
+        zod_number().to_string()
+    }
+}
+
 impl ZodSchema for f32 {
     fn zod_schema() -> String {
         zod_number().to_string()
