@@ -102,6 +102,10 @@ pub trait ZodSchema {
 /// Used for internally tagged newtype variants to properly flatten payload fields.
 pub trait ZodObjectSchema: ZodSchema {}
 
+/// Marker trait for types that are allowed as keys in Zod record schemas
+pub trait ZodRecordKey: ZodSchema {}
+
+
 /// Helper functions for building Zod schema strings
 pub fn zod_string() -> &'static str {
     "z.string()"
@@ -122,8 +126,9 @@ pub fn zod_nullable(inner: &str) -> String {
 pub fn zod_array(inner: &str) -> String {
     format!("z.array({inner})")
 }
-pub fn zod_record(value: &str) -> String {
-    format!("z.record(z.string(), {value})")
+
+pub fn zod_record(key: &str, value: &str) -> String {
+    format!("z.record({key}, {value})")
 }
 
 pub fn zod_object(fields: &[(&str, &str)]) -> String {
@@ -219,71 +224,29 @@ impl ZodSchema for String {
     }
 }
 
-impl ZodSchema for i8 {
+impl ZodRecordKey for String {}
+
+trait ZodNumber {}
+
+impl<T: ZodNumber> ZodSchema for T {
     fn zod_schema() -> String {
         zod_number().to_string()
     }
 }
 
-impl ZodSchema for i16 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
+impl<T: ZodNumber> ZodRecordKey for T {}
 
-impl ZodSchema for i32 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for i64 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for u8 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for u16 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for u32 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for u64 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for usize {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for f32 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
-
-impl ZodSchema for f64 {
-    fn zod_schema() -> String {
-        zod_number().to_string()
-    }
-}
+impl ZodNumber for i8 {}
+impl ZodNumber for i16 {}
+impl ZodNumber for i32 {}
+impl ZodNumber for i64 {}
+impl ZodNumber for u8 {}
+impl ZodNumber for u16 {}
+impl ZodNumber for u32 {}
+impl ZodNumber for u64 {}
+impl ZodNumber for usize {}
+impl ZodNumber for f32 {}
+impl ZodNumber for f64 {}
 
 impl ZodSchema for bool {
     fn zod_schema() -> String {
@@ -297,15 +260,44 @@ impl<T: ZodSchema> ZodSchema for Option<T> {
     }
 }
 
+// Tuples, length 2 through 4.
+
+impl<A: ZodSchema, B: ZodSchema> ZodSchema for (A,B) {
+    fn zod_schema() -> String {
+        let arr: [&str; 2] = [&A::zod_schema(), &B::zod_schema()];
+        zod_tuple(&arr[..])
+    }
+}
+
+impl<A: ZodSchema, B: ZodSchema, C: ZodSchema> ZodSchema for (A,B,C) {
+    fn zod_schema() -> String {
+        let arr: [&str; 3] = [&A::zod_schema(), &B::zod_schema(), &C::zod_schema()];
+        zod_tuple(&arr[..])
+    }
+}
+
+impl<A: ZodSchema, B: ZodSchema, C: ZodSchema, D: ZodSchema> ZodSchema for (A,B,C,D) {
+    fn zod_schema() -> String {
+        let arr: [&str; 4] = [&A::zod_schema(), &B::zod_schema(), &C::zod_schema(), &D::zod_schema()];
+        zod_tuple(&arr[..])
+    }
+}
+
 impl<T: ZodSchema> ZodSchema for Vec<T> {
     fn zod_schema() -> String {
         zod_array(&T::zod_schema())
     }
 }
 
-impl<T: ZodSchema> ZodSchema for HashMap<String, T> {
+impl<K: ZodRecordKey, V: ZodSchema> ZodSchema for HashMap<K, V> {
     fn zod_schema() -> String {
-        zod_record(&T::zod_schema())
+        zod_record(&K::zod_schema(), &V::zod_schema())
+    }
+}
+
+impl<K: ZodRecordKey, V: ZodSchema> ZodSchema for BTreeMap<K, V> {
+    fn zod_schema() -> String {
+        zod_record(&K::zod_schema(), &V::zod_schema())
     }
 }
 
