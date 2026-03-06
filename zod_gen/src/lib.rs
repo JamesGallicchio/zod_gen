@@ -105,7 +105,6 @@ pub trait ZodObjectSchema: ZodSchema {}
 /// Marker trait for types that are allowed as keys in Zod record schemas
 pub trait ZodRecordKey: ZodSchema {}
 
-
 /// Helper functions for building Zod schema strings
 pub fn zod_string() -> &'static str {
     "z.string()"
@@ -262,23 +261,28 @@ impl<T: ZodSchema> ZodSchema for Option<T> {
 
 // Tuples, length 2 through 4.
 
-impl<A: ZodSchema, B: ZodSchema> ZodSchema for (A,B) {
+impl<A: ZodSchema, B: ZodSchema> ZodSchema for (A, B) {
     fn zod_schema() -> String {
         let arr: [&str; 2] = [&A::zod_schema(), &B::zod_schema()];
         zod_tuple(&arr[..])
     }
 }
 
-impl<A: ZodSchema, B: ZodSchema, C: ZodSchema> ZodSchema for (A,B,C) {
+impl<A: ZodSchema, B: ZodSchema, C: ZodSchema> ZodSchema for (A, B, C) {
     fn zod_schema() -> String {
         let arr: [&str; 3] = [&A::zod_schema(), &B::zod_schema(), &C::zod_schema()];
         zod_tuple(&arr[..])
     }
 }
 
-impl<A: ZodSchema, B: ZodSchema, C: ZodSchema, D: ZodSchema> ZodSchema for (A,B,C,D) {
+impl<A: ZodSchema, B: ZodSchema, C: ZodSchema, D: ZodSchema> ZodSchema for (A, B, C, D) {
     fn zod_schema() -> String {
-        let arr: [&str; 4] = [&A::zod_schema(), &B::zod_schema(), &C::zod_schema(), &D::zod_schema()];
+        let arr: [&str; 4] = [
+            &A::zod_schema(),
+            &B::zod_schema(),
+            &C::zod_schema(),
+            &D::zod_schema(),
+        ];
         zod_tuple(&arr[..])
     }
 }
