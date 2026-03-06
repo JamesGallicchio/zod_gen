@@ -219,6 +219,18 @@ impl ZodSchema for String {
     }
 }
 
+impl ZodSchema for i8 {
+    fn zod_schema() -> String {
+        zod_number().to_string()
+    }
+}
+
+impl ZodSchema for i16 {
+    fn zod_schema() -> String {
+        zod_number().to_string()
+    }
+}
+
 impl ZodSchema for i32 {
     fn zod_schema() -> String {
         zod_number().to_string()
@@ -226,6 +238,18 @@ impl ZodSchema for i32 {
 }
 
 impl ZodSchema for i64 {
+    fn zod_schema() -> String {
+        zod_number().to_string()
+    }
+}
+
+impl ZodSchema for u8 {
+    fn zod_schema() -> String {
+        zod_number().to_string()
+    }
+}
+
+impl ZodSchema for u16 {
     fn zod_schema() -> String {
         zod_number().to_string()
     }
