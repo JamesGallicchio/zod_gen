@@ -90,7 +90,7 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 /// Trait for Rust types that can produce a Zod schema
 pub trait ZodSchema {
@@ -284,6 +284,18 @@ impl<A: ZodSchema, B: ZodSchema, C: ZodSchema, D: ZodSchema> ZodSchema for (A,B,
 }
 
 impl<T: ZodSchema> ZodSchema for Vec<T> {
+    fn zod_schema() -> String {
+        zod_array(&T::zod_schema())
+    }
+}
+
+impl<T: ZodSchema> ZodSchema for HashSet<T> {
+    fn zod_schema() -> String {
+        zod_array(&T::zod_schema())
+    }
+}
+
+impl<T: ZodSchema> ZodSchema for BTreeSet<T> {
     fn zod_schema() -> String {
         zod_array(&T::zod_schema())
     }
